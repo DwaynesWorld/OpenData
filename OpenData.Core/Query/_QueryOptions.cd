@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="OpenData.Core.Query.QueryOption">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Query\QueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.SelectExpandQueryOption">
+    <Position X="7.5" Y="3.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Query\SelectExpandQueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.FilterQueryOption">
+    <Position X="0.5" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Query\FilterQueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.FormatQueryOption">
+    <Position X="2.75" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAgA=</HashCode>
+      <FileName>Query\FormatQueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.OrderByQueryOption">
+    <Position X="5.25" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Query\OrderByQueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.OrderByProperty">
+    <Position X="5.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Query\OrderByProperty.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OpenData.Core.Query.SkipTokenQueryOption">
+    <Position X="10.25" Y="3.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Query\SkipTokenQueryOption.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="OpenData.Core.Query.OrderByDirection">
+    <Position X="5.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Query\OrderByDirection.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
