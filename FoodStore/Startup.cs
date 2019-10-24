@@ -47,7 +47,7 @@ namespace FoodStore
 
             services.AddCors();
             services.AddSwaggerGen();
-            // services.AddSession();
+            services.AddOpenDataParser();
             services.AddAutoMapper(typeof(FoodMappings));
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers().AddNewtonsoftJson();
@@ -94,7 +94,6 @@ namespace FoodStore
             }
 
             app.UseHttpsRedirection();
-            // app.UseSession();
             app.UseRouting();
             app.UseCors();
 

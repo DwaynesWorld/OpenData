@@ -175,13 +175,4 @@
             throw new ODataException(HttpStatusCode.BadRequest, Messages.IntRawValueInvalid.FormatWith(queryOption));
         }
     }
-    [ODataQueryParameterBindingAttribute]
-    public class ODataQueryOptions<T> : ODataQueryOptions
-    {
-        public ODataQueryOptions(HttpRequest request, EntitySet entitySet)
-        : base(request, entitySet)
-        {
-
-        }
-    }
 }

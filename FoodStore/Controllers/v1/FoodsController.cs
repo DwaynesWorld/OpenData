@@ -10,6 +10,8 @@ using FoodStore.Entities;
 using FoodStore.Models;
 using FoodStore.Helpers;
 using OpenData.Core.Query;
+using OpenData.Core;
+
 
 namespace FoodStore.v1.Controllers
 {
@@ -19,23 +21,28 @@ namespace FoodStore.v1.Controllers
     //[Route("api/[controller]")]
     public class FoodsController : ControllerBase
     {
+        private readonly IODataQueryParser _odataParser;
         private readonly IFoodRepository _foodRepository;
         private readonly IUrlHelper _urlHelper;
         private readonly IMapper _mapper;
 
         public FoodsController(
+            IODataQueryParser odataParser,
             IUrlHelper urlHelper,
             IFoodRepository foodRepository,
             IMapper mapper)
         {
+            _odataParser = odataParser;
             _foodRepository = foodRepository;
             _mapper = mapper;
             _urlHelper = urlHelper;
         }
 
         [HttpGet(Name = nameof(GetAllFoods))]
-        public ActionResult GetAllFoods(ODataQueryOptions<FoodItem> options)
+        public ActionResult GetAllFoods()
         {
+            // https://stackoverflow.com/questions/33254879/creating-dynamic-linq-expression-odata-for-multiple-conditions-for-filter-contai
+            ODataQueryOptions options = _odataParser.ParseOptions(Request, typeof(FoodItem));
             QueryParameters queryParameters = new QueryParameters();
             List<FoodItem> foodItems = _foodRepository.GetAll(queryParameters).ToList();
 
