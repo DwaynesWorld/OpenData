@@ -2,14 +2,13 @@
 {
     using System;
     using System.Net;
-    using System.Net.Http;
+    using Microsoft.AspNetCore.Http;
     using Model;
 
     /// <summary>
     /// An object which contains the query options in an OData query.
     /// </summary>
-    [ODataQueryOptionsParameterBinding]
-    public sealed class ODataQueryOptions
+    public class ODataQueryOptions
     {
         private SelectExpandQueryOption expand;
         private FilterQueryOption filter;
@@ -24,11 +23,11 @@
         /// <param name="request">The current http request message.</param>
         /// <param name="entitySet">The Entity Set to apply the OData query against.</param>
         /// <exception cref="ArgumentNullException">Thrown if the request or model are null.</exception>
-        public ODataQueryOptions(HttpRequestMessage request, EntitySet entitySet)
+        public ODataQueryOptions(HttpRequest request, EntitySet entitySet)
         {
-            this.Request = request ?? throw new ArgumentNullException(nameof(request));
+            // this.Request = request ?? throw new ArgumentNullException(nameof(request));
             this.EntitySet = entitySet ?? throw new ArgumentNullException(nameof(entitySet));
-            this.RawValues = new ODataRawQueryOptions(request.RequestUri.Query);
+            this.RawValues = new ODataRawQueryOptions(request.RequestUri().Query);
         }
 
         /// <summary>
@@ -111,11 +110,6 @@
         public ODataRawQueryOptions RawValues { get; }
 
         /// <summary>
-        /// Gets the request message associated with this OData query.
-        /// </summary>
-        public HttpRequestMessage Request { get; }
-
-        /// <summary>
         /// Gets the search query option.
         /// </summary>
         public string Search => this.RawValues.Search?.Substring(this.RawValues.Search.IndexOf('=') + 1);
@@ -179,6 +173,15 @@
             }
 
             throw new ODataException(HttpStatusCode.BadRequest, Messages.IntRawValueInvalid.FormatWith(queryOption));
+        }
+    }
+    [ODataQueryParameterBindingAttribute]
+    public class ODataQueryOptions<T> : ODataQueryOptions
+    {
+        public ODataQueryOptions(HttpRequest request, EntitySet entitySet)
+        : base(request, entitySet)
+        {
+
         }
     }
 }

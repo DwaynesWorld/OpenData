@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenData.Core", "OpenData.Core\OpenData.Core.csproj", "{A275D257-AEC9-4AE6-9F5E-173B86F2B505}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenData.Core.Tests", "OpenData.Core.Tests\OpenData.Core.Tests.csproj", "{F513A283-52A0-48DC-8D26-3B11B9AEE261}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodStore", "FoodStore\FoodStore.csproj", "{F513A283-52A0-48DC-8D26-3B11B9AEE261}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
