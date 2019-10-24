@@ -5,10 +5,11 @@
     using System.Globalization;
     using System.Linq;
     using System.Net;
-    using Microsoft.AspNetCore;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Http;
     using Model;
     using Query;
+    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// Extensions for the <see cref="HttpRequest"/> class
@@ -21,13 +22,13 @@
         /// <param name="request">The HTTP request message which led to the excetion.</param>
         /// <param name="statusCode">The <see cref="HttpStatusCode"/> applicable.</param>
         /// <param name="message">The message to return in the error detail.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
         /// <example>
         /// <code>request.CreateODataErrorResponse(HttpStatusCode.BadRequest, "Path segment not supported: 'Foo'.");</code>
         /// <para>{ "error": { "code": "400", "message": "Path segment not supported: 'Foo'." } }</para>
         /// </example>
-        public static HttpResponse CreateODataErrorResponse(this HttpRequest request, HttpStatusCode statusCode, string message)
-            => CreateODataErrorResponse(request, statusCode, message, null);
+        public static IActionResult CreateODataErrorResponse(this HttpRequest request, HttpResponse response, HttpStatusCode statusCode, string message)
+            => CreateODataErrorResponse(request, response, statusCode, message, null);
 
         /// <summary>
         /// Creates the OData error response message from the specified request message with the specified status code, code and message text.
@@ -36,12 +37,12 @@
         /// <param name="statusCode">The <see cref="HttpStatusCode"/> applicable.</param>
         /// <param name="message">The message to return in the error detail.</param>
         /// <param name="target">The target of the exception.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
         /// <example>
         /// <code>request.CreateODataErrorResponse(HttpStatusCode.BadRequest, "400", "Path segment not supported: 'Foo'.");</code>
         /// <para>{ "error": { "code": "400", "message": "Path segment not supported: 'Foo'." } }</para>
         /// </example>
-        public static HttpResponse CreateODataErrorResponse(this HttpRequest request, HttpStatusCode statusCode, string message, string target)
+        public static IActionResult CreateODataErrorResponse(this HttpRequest request, HttpResponse response, HttpStatusCode statusCode, string message, string target)
         {
             var value = new ODataErrorContent
             {
@@ -53,10 +54,10 @@
                 },
             };
 
-            var response = request.CreateResponse(statusCode, value);
             response.Headers.Add(ODataHeaderNames.ODataVersion, ODataHeaderValues.ODataVersionString);
-
-            return response;
+            var result = new ObjectResult(value);
+            result.StatusCode = (int)statusCode;
+            return result;
         }
 
         /// <summary>
@@ -64,7 +65,7 @@
         /// </summary>
         /// <param name="request">The HTTP request message which led to the excetion.</param>
         /// <param name="exception">The <see cref="ODataException"/> to create a response from.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
         /// <example>
         /// <code>
         /// try
@@ -78,21 +79,19 @@
         /// </code>
         /// <para>{ "error": { "code": "400", "message": "Path segment not supported: 'Foo'.", "target": "Foo" } }</para>
         /// </example>
-        public static HttpResponse CreateODataErrorResponse(this HttpRequest request, ODataException exception)
-            => CreateODataErrorResponse(request, exception.StatusCode, exception.Message, exception.Target);
+        public static IActionResult CreateODataErrorResponse(this HttpRequest request, HttpResponse response, ODataException exception)
+            => CreateODataErrorResponse(request, response, exception.StatusCode, exception.Message, exception.Target);
 
         /// <summary>
         /// Creates the OData response message from the specified request message.
         /// </summary>
         /// <param name="request">The HTTP request message which led to this response message.</param>
         /// <param name="statusCode">The HTTP response status code.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
-        public static HttpResponse CreateODataResponse(this HttpRequest request, HttpStatusCode statusCode)
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
+        public static IActionResult CreateODataResponse(this HttpRequest request, HttpResponse response, HttpStatusCode statusCode)
         {
-            var response = request.CreateResponse(statusCode);
             response.Headers.Add(ODataHeaderNames.ODataVersion, ODataHeaderValues.ODataVersionString);
-
-            return response;
+            return new StatusCodeResult((int)statusCode);
         }
 
         /// <summary>
@@ -101,19 +100,19 @@
         /// <param name="request">The HTTP request message which led to this response message.</param>
         /// <param name="statusCode">The HTTP response status code.</param>
         /// <param name="value">The string content of the HTTP response message.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
-        public static HttpResponse CreateODataResponse(this HttpRequest request, HttpStatusCode statusCode, string value)
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
+        public static IActionResult CreateODataResponse(this HttpRequest request, HttpResponse response, HttpStatusCode statusCode, string value)
         {
-            var response = request.CreateResponse(statusCode);
+            var result = new ContentResult();
+            result.StatusCode = (int)statusCode;
 
             if (value != null)
             {
-                response.Content = new StringContent(value);
+                result.Content = value;
             }
 
             response.Headers.Add(ODataHeaderNames.ODataVersion, ODataHeaderValues.ODataVersionString);
-
-            return response;
+            return result;
         }
 
         /// <summary>
@@ -121,9 +120,9 @@
         /// </summary>
         /// <param name="request">The HTTP request message which led to this response message.</param>
         /// <param name="value">The string content of the HTTP response message.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
-        public static HttpResponse CreateODataResponse(this HttpRequest request, string value)
-            => CreateODataResponse(request, value == null ? HttpStatusCode.NoContent : HttpStatusCode.OK, value);
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
+        public static IActionResult CreateODataResponse(this HttpRequest request, HttpResponse response, string value)
+            => CreateODataResponse(request, response, value == null ? HttpStatusCode.NoContent : HttpStatusCode.OK, value);
 
         /// <summary>
         /// Creates the OData response message from the specified request message.
@@ -132,16 +131,19 @@
         /// <param name="request">The HTTP request message which led to this response message.</param>
         /// <param name="statusCode">The HTTP response status code.</param>
         /// <param name="value">The content of the HTTP response message.</param>
-        /// <returns>An initialized System.Net.Http.HttpResponse wired up to the associated System.Net.Http.HttpRequest.</returns>
-        public static HttpResponse CreateODataResponse<T>(this HttpRequest request, HttpStatusCode statusCode, T value)
+        /// <returns>An initialized Microsoft.AspNetCore.Mvc.IActionResult.</returns>
+        public static IActionResult CreateODataResponse<T>(this HttpRequest request, HttpResponse response, HttpStatusCode statusCode, T value)
         {
             var requestOptions = request.ReadODataRequestOptions();
 
-            var response = request.CreateResponse(statusCode, value);
-            response.Content.Headers.ContentType.Parameters.Add(requestOptions.MetadataLevel.ToNameValueHeaderValue());
+            // var response = request.CreateResponse(statusCode, value);
+            var metadataHeader = requestOptions.MetadataLevel.ToNameValueHeaderValue();
+            response.Headers.Add(metadataHeader.Name, metadataHeader.Value);
             response.Headers.Add(ODataHeaderNames.ODataVersion, ODataHeaderValues.ODataVersionString);
 
-            return response;
+            var result = new ObjectResult(value);
+            result.StatusCode = (int)statusCode;
+            return result;
         }
 
         /// <summary>
@@ -156,11 +158,11 @@
                 throw new ArgumentNullException(nameof(request));
             }
 
-            if (!request.Properties.TryGetValue(typeof(ODataRequestOptions).FullName, out object requestOptions))
+            if (!request.HttpContext.Items.TryGetValue(typeof(ODataRequestOptions).FullName, out object requestOptions))
             {
                 requestOptions = new ODataRequestOptions(request);
 
-                request.Properties.Add(typeof(ODataRequestOptions).FullName, requestOptions);
+                request.HttpContext.Items.Add(typeof(ODataRequestOptions).FullName, requestOptions);
             }
 
             return (ODataRequestOptions)requestOptions;
@@ -178,7 +180,7 @@
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var entitySetName = request.RequestUri.ResolveODataEntitySetName();
+            var entitySetName = request.RequestUri().ResolveODataEntitySetName();
 
             if (!EntityDataModel.Current.EntitySets.TryGetValue(entitySetName, out EntitySet entitySet))
             {
@@ -186,6 +188,16 @@
             }
 
             return entitySet;
+        }
+
+        public static Uri RequestUri(this HttpRequest request)
+        {
+            var builder = new UriBuilder();
+            builder.Scheme = request.Scheme;
+            builder.Host = request.Host.Value;
+            builder.Path = request.Path;
+            builder.Query = request.QueryString.ToUriComponent();
+            return builder.Uri;
         }
 
         /// <summary>
@@ -202,7 +214,7 @@
                 return null;
             }
 
-            return new Uri(request.RequestUri.ODataContextUriBuilder().ToString());
+            return new Uri(request.RequestUri().ODataContextUriBuilder().ToString());
         }
 
         /// <summary>
@@ -220,7 +232,7 @@
                 return null;
             }
 
-            return new Uri(request.RequestUri.ODataContextUriBuilder(entitySet).ToString());
+            return new Uri(request.RequestUri().ODataContextUriBuilder(entitySet).ToString());
         }
 
         /// <summary>
@@ -239,7 +251,7 @@
                 return null;
             }
 
-            return new Uri(request.RequestUri.ODataContextUriBuilder(entitySet, selectExpandQueryOption).ToString());
+            return new Uri(request.RequestUri().ODataContextUriBuilder(entitySet, selectExpandQueryOption).ToString());
         }
 
         /// <summary>
@@ -259,7 +271,7 @@
                 return null;
             }
 
-            return new Uri(request.RequestUri.ODataContextUriBuilder(entitySet, entityKey).ToString());
+            return new Uri(request.RequestUri().ODataContextUriBuilder(entitySet, entityKey).ToString());
         }
 
         /// <summary>
@@ -280,7 +292,7 @@
                 return null;
             }
 
-            return new Uri(request.RequestUri.ODataContextUriBuilder(entitySet, entityKey, propertyName).ToString());
+            return new Uri(request.RequestUri().ODataContextUriBuilder(entitySet, entityKey, propertyName).ToString());
         }
 
         /// <summary>
@@ -292,13 +304,13 @@
         /// <param name="entityKey">The Entity Key for the item in the EntitySet.</param>
         /// <returns>A <see cref="Uri"/> containing the address of the Entity with the specified Entity Key.</returns>
         public static Uri ResolveODataEntityUri<TEntityKey>(this HttpRequest request, EntitySet entitySet, TEntityKey entityKey)
-            => new Uri(request.RequestUri.ODataEntityUriBuilder(entitySet, entityKey).ToString());
+            => new Uri(request.RequestUri().ODataEntityUriBuilder(entitySet, entityKey).ToString());
 
         internal static string ReadHeaderValue(this HttpRequest request, string name)
         {
             string value = null;
 
-            if (request.Headers.TryGetValues(name, out IEnumerable<string> values))
+            if (request.Headers.TryGetValue(name, out StringValues values))
             {
                 value = values.FirstOrDefault();
             }
@@ -325,27 +337,29 @@
 
         internal static ODataMetadataLevel ReadMetadataLevel(this HttpRequest request)
         {
-            foreach (var header in request.Headers.Accept)
+            foreach (var header in request.Headers.Where(h => h.Key == "Accept"))
             {
-                foreach (var parameter in header.Parameters)
+                foreach (var parameter in header.Value)
                 {
-                    if (parameter.Name == ODataMetadataLevelExtensions.HeaderName)
-                    {
-                        switch (parameter.Value)
-                        {
-                            case "none":
-                                return ODataMetadataLevel.None;
+                    throw new Exception("TODO");
+                    // TODO: FIXME
+                    // if (parameter.Name == ODataMetadataLevelExtensions.HeaderName)
+                    // {
+                    //     switch (parameter.Value)
+                    //     {
+                    //         case "none":
+                    //             return ODataMetadataLevel.None;
 
-                            case "minimal":
-                                return ODataMetadataLevel.Minimal;
+                    //         case "minimal":
+                    //             return ODataMetadataLevel.Minimal;
 
-                            case "full":
-                                return ODataMetadataLevel.Full;
+                    //         case "full":
+                    //             return ODataMetadataLevel.Full;
 
-                            default:
-                                throw new ODataException(HttpStatusCode.BadRequest, Messages.ODataMetadataValueInvalid);
-                        }
-                    }
+                    //         default:
+                    //             throw new ODataException(HttpStatusCode.BadRequest, Messages.ODataMetadataValueInvalid);
+                    //     }
+                    // }
                 }
             }
 

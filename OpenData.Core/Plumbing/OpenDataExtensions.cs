@@ -1,48 +1,46 @@
-﻿namespace System.Web.Http
+﻿namespace OpenData.Core
 {
     using System;
     using System.Collections.Generic;
-    using global::OpenData.Core;
+    using Microsoft.Extensions.DependencyInjection;
     using global::OpenData.Core.Model;
 
     /// <summary>
-    /// Contains extension methods for the <see cref="HttpConfiguration"/> class.
+    /// Contains extension methods for the <see cref="IMvcBuilder"/> class.
     /// </summary>
-    public static class HttpConfigurationODataExtensions
+    public static class OpenDataExtensions
     {
         /// <summary>
-        /// Use OData services with the specified Entity Data Model with <see cref="StringComparer"/>.OrdinalIgnoreCase for the model name matching.
+        /// Use OpenData services with the specified Entity Data Model with <see cref="StringComparer"/>.OrdinalIgnoreCase for the model name matching.
         /// </summary>
-        /// <param name="configuration">The server configuration.</param>
+        /// <param name="mvcBuilder">The mvc configuration.</param>
         /// <param name="entityDataModelBuilderCallback">The call-back to configure the Entity Data Model.</param>
-        public static void UseOData(
-            this HttpConfiguration configuration,
+        public static void AddOpenData(
+            this IMvcBuilder mvcBuilder,
             Action<EntityDataModelBuilder> entityDataModelBuilderCallback)
-            => UseOData(configuration, entityDataModelBuilderCallback, StringComparer.OrdinalIgnoreCase);
+            => AddOpenData(mvcBuilder, entityDataModelBuilderCallback, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Use OData services with the specified Entity Data Model.
+        /// Use OpenData services with the specified Entity Data Model.
         /// </summary>
-        /// <param name="configuration">The server configuration.</param>
+        /// <param name="mvcBuilder">The mvc configuration.</param>
         /// <param name="entityDataModelBuilderCallback">The call-back to configure the Entity Data Model.</param>
         /// <param name="entitySetNameComparer">The comparer to use for the entty set name matching.</param>
-        public static void UseOData(
-            this HttpConfiguration configuration,
+        public static void AddOpenData(
+            this IMvcBuilder mvcBuilder,
             Action<EntityDataModelBuilder> entityDataModelBuilderCallback,
             IEqualityComparer<string> entitySetNameComparer)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
             if (entityDataModelBuilderCallback == null)
             {
                 throw new ArgumentNullException(nameof(entityDataModelBuilderCallback));
             }
 
-            configuration.Filters.Add(new ODataExceptionFilterAttribute());
-            configuration.Filters.Add(new ODataVersionHeaderValidationAttribute());
+            mvcBuilder.AddMvcOptions(options =>
+            {
+                options.Filters.Add(new ODataExceptionFilterAttribute());
+                options.Filters.Add(new ODataVersionHeaderValidationAttribute());
+            });
 
             var entityDataModelBuilder = new EntityDataModelBuilder(entitySetNameComparer);
             entityDataModelBuilderCallback(entityDataModelBuilder);

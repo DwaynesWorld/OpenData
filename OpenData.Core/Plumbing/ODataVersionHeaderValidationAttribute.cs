@@ -2,42 +2,42 @@
 {
     using System;
     using System.Net;
-    using System.Web.Http.Controllers;
-    using System.Web.Http.Filters;
+    using Microsoft.AspNetCore.Mvc.Filters;
 
     /// <summary>
     /// An <see cref="ActionFilterAttribute"/> which validates the OData-Version header in a request.
     /// </summary>
-    /// <seealso cref="System.Web.Http.Filters.ActionFilterAttribute" />
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Filters.ActionFilterAttribute" />
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
     public sealed class ODataVersionHeaderValidationAttribute : ActionFilterAttribute
     {
         /// <summary>
         /// Occurs before the action method is invoked.
         /// </summary>
-        /// <param name="actionContext">The action context.</param>
-        public override void OnActionExecuting(HttpActionContext actionContext)
+        /// <param name="context">The action context.</param>
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (actionContext != null)
+            if (context != null)
             {
-                var headerValue = actionContext.Request.ReadHeaderValue(ODataHeaderNames.ODataVersion);
+                var request = context.HttpContext.Request;
+                var response = context.HttpContext.Response;
 
+                var headerValue = request.ReadHeaderValue(ODataHeaderNames.ODataVersion);
                 if (headerValue != null && headerValue != ODataHeaderValues.ODataVersionString)
                 {
-                    actionContext.Response =
-                        actionContext.Request.CreateODataErrorResponse(HttpStatusCode.NotAcceptable, Messages.UnsupportedODataVersion);
+                    context.Result =
+                        request.CreateODataErrorResponse(response, HttpStatusCode.NotAcceptable, Messages.UnsupportedODataVersion);
                 }
 
-                headerValue = actionContext.Request.ReadHeaderValue(ODataHeaderNames.ODataMaxVersion);
-
+                headerValue = request.ReadHeaderValue(ODataHeaderNames.ODataMaxVersion);
                 if (headerValue != null && headerValue != ODataHeaderValues.ODataVersionString)
                 {
-                    actionContext.Response =
-                        actionContext.Request.CreateODataErrorResponse(HttpStatusCode.NotAcceptable, Messages.UnsupportedODataVersion);
+                    context.Result =
+                        request.CreateODataErrorResponse(response, HttpStatusCode.NotAcceptable, Messages.UnsupportedODataVersion);
                 }
             }
 
-            base.OnActionExecuting(actionContext);
+            base.OnActionExecuting(context);
         }
     }
 }

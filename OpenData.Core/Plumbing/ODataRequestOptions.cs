@@ -1,7 +1,7 @@
 ﻿namespace OpenData.Core
 {
     using System;
-    using System.Net.Http;
+    using Microsoft.AspNetCore.Http;
 
     /// <summary>
     /// Contains OData options for the request.
@@ -12,9 +12,9 @@
         /// Initialises a new instance of the <see cref="ODataRequestOptions"/> class.
         /// </summary>
         /// <param name="request">The current http request message.</param>
-        internal ODataRequestOptions(HttpRequestMessage request)
+        internal ODataRequestOptions(HttpRequest request)
         {
-            this.DataServiceUri = request.RequestUri.ResolveODataServiceUri();
+            this.DataServiceUri = request.RequestUri().ResolveODataServiceUri();
             this.IsolationLevel = request.ReadIsolationLevel();
             this.MetadataLevel = request.ReadMetadataLevel();
         }
